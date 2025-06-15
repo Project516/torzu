@@ -31,9 +31,6 @@
 [submodule "libadrenotools"]
 	path = externals/libadrenotools
 	url = https://github.com/bylaws/libadrenotools.git
-[submodule "tzdb_to_nx"]
-	path = externals/nx_tzdb/tzdb_to_nx
-	url = https://github.com/lat9nq/tzdb_to_nx.git
 [submodule "simpleini"]
 	path = externals/simpleini
 	url = https://github.com/brofield/simpleini.git
