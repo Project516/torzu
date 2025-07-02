@@ -36,6 +36,10 @@ if (YUZU_CMD)
     endif()
     target_link_libraries(yuzu-cmd PRIVATE ${PLATFORM_LIBRARIES} Threads::Threads)
 
+    if (TARGET getopt)
+        target_link_libraries(yuzu-cmd PRIVATE getopt)
+    endif()
+
     create_resource("../../dist/yuzu.bmp" "yuzu_cmd/yuzu_icon.h" "yuzu_icon")
     target_include_directories(yuzu-cmd PRIVATE ${RESOURCES_DIR})
 

@@ -19,6 +19,10 @@ if (MSVC)
 endif()
 target_link_libraries(yuzu-room PRIVATE ${PLATFORM_LIBRARIES} Threads::Threads)
 
+if (TARGET getopt)
+    target_link_libraries(yuzu-room PRIVATE getopt)
+endif()
+
 if(UNIX AND NOT APPLE)
     install(TARGETS yuzu-room)
 endif()

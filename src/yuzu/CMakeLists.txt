@@ -348,6 +348,15 @@ target_sources(yuzu
         ${THEMES}
 )
 
+target_compile_definitions(yuzu PUBLIC YUZU_QT_VERSION_STR="${Qt6Widgets_VERSION}")
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    qt_import_plugins(yuzu
+        INCLUDE Qt6::QXcbIntegrationPlugin
+        EXCLUDE_BY_TYPE sqldrivers
+    )
+endif()
+
 if (APPLE)
     set(MACOSX_ICON "../../dist/yuzu.icns")
     set_source_files_properties(${MACOSX_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
@@ -449,7 +458,8 @@ if(UNIX AND NOT APPLE)
     install(TARGETS yuzu)
 endif()
 
-if (WIN32 AND QT_VERSION VERSION_GREATER_EQUAL 6)
+get_target_property(QT_TARGET_TYPE Qt6::Widgets TYPE)
+if (WIN32 AND QT_VERSION VERSION_GREATER_EQUAL 6 AND QT_TARGET_TYPE STREQUAL "SHARED_LIBRARY")
     set(YUZU_EXE_DIR "$<TARGET_FILE_DIR:yuzu>")
     add_custom_command(TARGET yuzu POST_BUILD COMMAND ${WINDEPLOYQT_EXECUTABLE} "${YUZU_EXE_DIR}/yuzu.exe" --dir "${YUZU_EXE_DIR}" --libdir "${YUZU_EXE_DIR}" --plugindir "${YUZU_EXE_DIR}/plugins" --no-compiler-runtime --no-opengl-sw --no-system-d3d-compiler --no-translations --verbose 0)
 endif()

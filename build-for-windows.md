@@ -77,7 +77,7 @@ cd torzu
 git submodule update --init --recursive
 mkdir build
 cd build
-cmake .. -G "Visual Studio 17 2022" -A x64 -DYUZU_TESTS=OFF
+cmake .. -G "Visual Studio 17 2022" -A x64 -DYUZU_TESTS=OFF -DYUZU_BUILD_QT6=ON
 cmake --build . --config Release
 ```
 * You'll find the resulting files in the `build/bin/Release` folder. To make it a portable install with all AppData files local to the torzu folder, add a "user" folder:
@@ -173,12 +173,27 @@ https://github.com/mstorsjo/msvc-wine
 
 https://apt.llvm.org
 
+https://kb.firedaemon.com/support/solutions/articles/4000121705#Download-OpenSSL
+
+https://github.com/clamwin/openssl
+
 ```
 # Probably not needed, use if include files can't be found
-exec bwrap --bind / / --ro-bind '/opt/msvc/Windows Kits/10/Include/10.0.22621.0/ucrt' /usr/include --dev /dev /bin/bash
+exec bwrap --bind / / --tmpfs /usr/include --tmpfs /usr/lib/pkgconfig --tmpfs /usr/lib/x86_64-linux-gnu/pkgconfig --tmpfs /usr/lib/cmake --dev /dev /bin/bash
 ```
 ```
-CC=clang-cl-19 CXX=clang-cl-19 cmake /tmp/torzu -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_{C,CXX}_FLAGS:STRING="--target=x86_64-windows-msvc /EHa -Wno-unused-command-line-argument -Wno-unknown-argument -flto=full -fdata-sections -ffunction-sections" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--gc-sections" -DCMAKE_SYSTEM_NAME:STRING=Windows -DYUZU_USE_BUNDLED_VCPKG=OFF -DYUZU_USE_CPM=ON -DENABLE_OPENSSL=OFF -DENABLE_WEB_SERVICE=OFF -DENABLE_LIBUSB=OFF -DYUZU_TESTS=OFF -GNinja
+# in build/linux
+../../configure -opensource -confirm-license -prefix ~/qt-everywhere-src-6.9.1/inst/linux -release ${QT_LIBTYPE} -ltcg -submodules qtbase,qttranslations,qtmultimedia -no-feature-vulkan -nomake examples -nomake tests -qt-doubleconversion -no-glib -qt-pcre -qt-zlib -qt-harfbuzz -qt-libpng -qt-libjpeg
+ninja install
+
+# in build/windows
+cp -rv ../../qtmultimedia/src/multimedia/windows qtbase/include/QtMultimedia/private
+CC=clang-cl-19 CXX=clang-cl-19 CFLAGS="--target=x86_64-windows-msvc -fuse-ld=lld-link-19" CXXFLAGS="--target=x86_64-windows-msvc -fuse-ld=lld-link-19" ../../configure -opensource -confirm-license -prefix ~/qt-everywhere-src-6.9.1/inst/windows -release -static -ltcg -submodules qtbase,qtdeclarative,qtmultimedia -skip qtactiveqt -no-feature-vulkan -nomake examples -nomake tests -qt-doubleconversion -no-glib -qt-pcre -qt-zlib -qt-harfbuzz -qt-libpng -qt-libjpeg -platform win32-clang-msvc -qt-host-path ~/qt-everywhere-src-6.9.1/inst/linux -- -DCMAKE_SYSTEM_NAME=Windows
+ninja
+ninja install
+```
+```
+CC=clang-cl-19 CXX=clang-cl-19 cmake /tmp/torzu -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_ASM_FLAGS="--target=x86_64-windows-msvc" -DCMAKE_{C,CXX}_FLAGS:STRING="--target=x86_64-windows-msvc -DNOMINMAX /EHa -Wno-unused-command-line-argument -Wno-unknown-argument -flto=full -fdata-sections -ffunction-sections" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--gc-sections" -DCMAKE_SYSTEM_NAME:STRING=Windows -DYUZU_USE_BUNDLED_VCPKG=OFF -DYUZU_USE_CPM=ON -DENABLE_OPENSSL=OFF -DENABLE_WEB_SERVICE=OFF -DENABLE_LIBUSB=OFF -DYUZU_TESTS=OFF -DQT_QMAKE_EXECUTABLE:FILEPATH=/home/user/qt-everywhere-src-6.9.1/inst/windows/bin/qmake -DCMAKE_PREFIX_PATH:PATH=/home/user/qt-everywhere-src-6.9.1/inst -GNinja
 ```
 
 ---

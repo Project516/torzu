@@ -218,6 +218,10 @@ if(ARCHITECTURE_x86_64)
     target_link_libraries(common PRIVATE xbyak::xbyak)
 endif()
 
+if (TARGET clang_rt_builtins)
+  target_link_libraries(common PUBLIC clang_rt_builtins)
+endif()
+
 if (HAS_NCE)
     target_sources(common
         PRIVATE

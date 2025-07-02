@@ -21,12 +21,21 @@ case $i in
         export BUILD_USE_CPM=1
         echo "-> Using CPM to download most dependencies."
     ;;
+    -q|--build-qt)
+        export BUILD_QT=1
+        echo "-> Building Qt."
+    ;;
+    -s|--prefer-static)
+        export BUILD_PREFER_STATIC=1
+        export QTSTATIC=true
+        echo "-> Preferring static libraries."
+    ;;
     -k|--keep-rootfs)
         BUILD_KEEP_ROOTFS=1
         echo "-> Not deleting rootfs after successful build."
     ;;
     *)
-        echo "Usage: $0 [--clang/-l] [--thin-lto/-o] [--fat-lto/-O] [--use-cpm/-p] [--keep-rootfs/-k]"
+        echo "Usage: $0 [--clang/-l] [--thin-lto/-o] [--fat-lto/-O] [--use-cpm/-p] [--build-qt/-q] [--prefer-static/-s] [--keep-rootfs/-k]"
         exit 1
     ;;
 esac
@@ -51,11 +60,14 @@ rm -rf "$TORZU_SOURCE_DIR/AppImageBuilder/build"
 cd /tmp
 echo "Cleaning up before build..."
 rm -rf torzu-debian-appimage-rootfs
-[ -d rootfs-torzu-appimage-build ] ||
-    debootstrap stable rootfs-torzu-appimage-build http://deb.debian.org/debian/
+if ! [ -d rootfs-torzu-appimage-build ]; then
+    debootstrap bookworm rootfs-torzu-appimage-build http://deb.debian.org/debian/
+else
+    rm -rf rootfs-torzu-appimage-build/tmp/*
+fi
 bwrap --bind rootfs-torzu-appimage-build / \
       --unshare-pid \
-      --dev-bind /dev /dev --proc /proc --tmpfs /tmp --ro-bind /sys /sys --dev-bind /run /run \
+      --dev-bind /dev /dev --proc /proc --ro-bind /sys /sys --dev-bind /run /run \
       --tmpfs /var/tmp \
       --chmod 1777 /tmp \
       --ro-bind /etc/resolv.conf /etc/resolv.conf \

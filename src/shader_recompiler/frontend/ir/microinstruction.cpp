@@ -250,7 +250,8 @@ bool Inst::AreAllArgsImmediates() const {
     if (op == Opcode::Phi) {
         throw LogicError("Testing for all arguments are immediates on phi instruction");
     }
-    return std::all_of(args.begin(), args.begin() + NumArgs(),
+    return std::all_of(args.begin(),
+                       args.begin() + static_cast<ptrdiff_t>(NumArgs()),
                        [](const IR::Value& value) { return value.IsImmediate(); });
 }
 

@@ -53,6 +53,7 @@
 #include "yuzu/multiplayer/state.h"
 #include "yuzu/util/controller_navigation.h"
 
+
 // These are wrappers to avoid the calls to CreateDirectory and CreateFile because of the Windows
 // defines.
 static FileSys::VirtualDir VfsFilesystemCreateDirectoryWrapper(
@@ -5212,9 +5213,6 @@ static void SetHighDPIAttributes() {
     QApplication::setHighDpiScaleFactorRoundingPolicy(
         Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
-
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 }
 
 int main(int argc, char* argv[]) {

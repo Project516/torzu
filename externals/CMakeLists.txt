@@ -50,8 +50,29 @@ if ((ARCHITECTURE_x86_64 OR ARCHITECTURE_arm64) AND NOT TARGET dynarmic::dynarmi
 endif()
 
 # getopt
-if (MSVC)
+include(CheckIncludeFile)
+check_include_file(getopt.h HAS_GETOPT)
+if (NOT HAS_GETOPT)
+    message(STATUS "Using bundled getopt")
     add_subdirectory(getopt)
+endif()
+
+# clang_rt_builtins
+check_c_source_compiles("
+#include <stdint.h>
+
+volatile __uint128_t a = 100;
+volatile __uint128_t b = 2;
+
+int main() {
+    __uint128_t result = a / b;
+    (void)result;
+    return 0;
+}
+" HAVE_UDIVTI3)
+if(NOT HAVE_UDIVTI3)
+    message(STATUS "Adding clang_rt_builtins due to missing __udivti3")
+    add_subdirectory(clang_rt_builtins)
 endif()
 
 # Glad

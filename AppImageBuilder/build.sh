@@ -52,7 +52,7 @@ if [ ! -d "$QTDIR" ]; then
     fi
   fi
 fi
-if [ $QTFOUND == "true" ]; then
+if [ $QTFOUND == "true" ] || [ -n "$QTSTATIC" ]; then
   echo "QT plugins from $QTDIR will be used."
 
   # Copy system dependencies used to build and required by the yuzu binary
@@ -69,9 +69,11 @@ if [ $QTFOUND == "true" ]; then
   copy_libs "$YUZU_BIN_GUI"
 
   # Copy QT dependency folders, path determined above
-  echo "Copying Qt dependencies..."
-  mkdir ./build/qt5
-  cp -rv "$QTDIR"/{imageformats,platforms,platformthemes,xcbglintegrations} ./build/qt5/
+  if [ -z "$QTSTATIC" ]; then
+    echo "Copying Qt dependencies..."
+    mkdir ./build/qt5
+    cp -rv "$QTDIR"/{imageformats,platforms,platformthemes,xcbglintegrations} ./build/qt5/
+  fi
 
   # Discover indirect dependencies (mostly from runtime-loaded Qt plugins)
   echo "Copying extra dependencies..."

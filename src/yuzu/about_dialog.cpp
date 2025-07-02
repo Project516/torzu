@@ -3,6 +3,7 @@
 
 #include <QIcon>
 #include <fmt/format.h>
+
 #include "common/scm_rev.h"
 #include "ui_aboutdialog.h"
 #include "yuzu/about_dialog.h"
@@ -24,9 +25,9 @@ AboutDialog::AboutDialog(QWidget* parent)
     if (!yuzu_logo.isNull()) {
         ui->labelLogo->setPixmap(yuzu_logo.pixmap(200));
     }
-    ui->labelBuildInfo->setText(
-        ui->labelBuildInfo->text().arg(QString::fromStdString(yuzu_build_version),
-                                       QString::fromUtf8(Common::g_build_date).left(10)));
+    ui->labelBuildInfo->setText(ui->labelBuildInfo->text().arg(
+        QString::fromStdString(yuzu_build_version),
+        QString::fromUtf8(Common::g_build_date).left(10), QString::fromUtf8(YUZU_QT_VERSION_STR)));
 }
 
 AboutDialog::~AboutDialog() = default;
