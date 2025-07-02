@@ -46,7 +46,7 @@ if (ENABLE_QT)
     option(YUZU_USE_QT_WEB_ENGINE "Use QtWebEngine for web applet implementation" OFF)
 endif()
 
-option(ENABLE_WEB_SERVICE "Enable web services (telemetry, etc.)" ON)
+set(ENABLE_WEB_SERVICE OFF)
 
 option(YUZU_USE_BUNDLED_FFMPEG "Download/Build bundled FFmpeg" "${WIN32}")
 
