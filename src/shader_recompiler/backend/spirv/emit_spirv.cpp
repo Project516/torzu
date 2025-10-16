@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -19,7 +22,15 @@ namespace Shader::Backend::SPIRV {
 namespace {
 template <class Func>
 struct FuncTraits {};
+    thread_local std::unique_ptr<spvtools::Optimizer> thread_optimizer;
 
+    spvtools::Optimizer& GetThreadOptimizer() {
+        if (!thread_optimizer) {
+            thread_optimizer = std::make_unique<spvtools::Optimizer>(SPV_ENV_VULKAN_1_3);
+            thread_optimizer->RegisterPerformancePasses();
+        }
+        return *thread_optimizer;
+    }
 template <class ReturnType_, class... Args>
 struct FuncTraits<ReturnType_ (*)(Args...)> {
     using ReturnType = ReturnType_;
@@ -463,22 +474,31 @@ void SetupCapabilities(const Profile& profile, const Info& info, EmitContext& ct
 }
 
 void PatchPhiNodes(IR::Program& program, EmitContext& ctx) {
-    auto inst{program.blocks.front()->begin()};
-    size_t block_index{0};
-    ctx.PatchDeferredPhi([&](size_t phi_arg) {
-        if (phi_arg == 0) {
-            ++inst;
-            if (inst == program.blocks[block_index]->end() ||
-                inst->GetOpcode() != IR::Opcode::Phi) {
-                do {
-                    ++block_index;
-                    inst = program.blocks[block_index]->begin();
-                } while (inst->GetOpcode() != IR::Opcode::Phi);
+            // Flatten all leading PHIs from each block into a vector
+            std::vector<IR::Inst*> phi_instructions;
+            for (IR::Block* block : program.blocks) {
+                for (auto it = block->begin(); it != block->end(); ++it) {
+                    if (it->GetOpcode() != IR::Opcode::Phi)
+                        break;
+                    phi_instructions.push_back(&*it);
+                }
             }
+
+            if (phi_instructions.empty()) {
+                return; // nothing to patch
+            }
+
+            // Start "before" first PHI; advance on phi_arg == 0
+            size_t phi_index = static_cast<size_t>(-1);
+
+            ctx.PatchDeferredPhi([&](size_t phi_arg) -> Id {
+                if (phi_arg == 0) {
+                    ++phi_index;
+                }
+                IR::Inst* phi = phi_instructions[phi_index];
+                return ctx.Def(phi->Arg(phi_arg));
+            });
         }
-        return ctx.Def(inst->Arg(phi_arg));
-    });
-}
 } // Anonymous namespace
 
 std::vector<u32> EmitSPIRV(const Profile& profile, const RuntimeInfo& runtime_info,
@@ -500,10 +520,11 @@ std::vector<u32> EmitSPIRV(const Profile& profile, const RuntimeInfo& runtime_in
     } else {
         std::vector<u32> spirv = ctx.Assemble();
 
-        spvtools::Optimizer spv_opt(SPV_ENV_VULKAN_1_3);
-        spv_opt.SetMessageConsumer([](spv_message_level_t, const char*, const spv_position_t&,
-                                      const char* m) { LOG_ERROR(HW_GPU, "spirv-opt: {}", m); });
-        spv_opt.RegisterPerformancePasses();
+        // Use thread-local optimizer instead of creating a new one
+        auto& spv_opt = GetThreadOptimizer();
+        spv_opt.SetMessageConsumer([](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
+            LOG_ERROR(HW_GPU, "spirv-opt: {}", m);
+        });
 
         spvtools::OptimizerOptions opt_options;
         opt_options.set_run_validator(false);
