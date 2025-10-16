@@ -21,16 +21,6 @@ It is written in C++ with portability in mind and runs on Linux, Windows and And
 A lot of fake Torzu websites have popped up. These are not mine. **This project will not have a clearnet website for the foreseeable future!**
 I highly advice against downloading anything from these websites, specially if their intention is clearly to make money through advertisements.
 
-## Infrastructure back up online
-
-There have been issues with the infrastructure running the main repository while I've been away from home. It should be all back and functional now!
-Sorry for that!
-
-## IRC chat
-
-There's an IRC! Connect to `mao7u6s7jwxeof2fax2kwwqeabyevy5b2icbl24lhgnmkebbtmh37had.onion` port `6667` using your favorite client and join `#torzu`. Connecting via Tor might require a bit of setup but that shouldn't take much more than a quick web search to figure out.
-Please **register your nicks**! 
-
 ## Compatibility
 
 The emulator is capable of running most commercial games at full speed, provided you meet the [necessary hardware requirements](http://web.archive.org/web/20240130133811/https://yuzu-emu.org/help/quickstart/#hardware-requirements).
@@ -42,6 +32,9 @@ It runs most Nintendo Switch games released until the date of the Yuzu takedown.
 **Consider this project in feature freeze!** This means no new features are going to be added. All further updates are going to be focused on maintaining compatibility with modern systems.
 
 I think this project has done a really good job with keeping regressions from Yuzu to the minimum. If a game runs on Yuzu, and on the current version of Torzu, it's extremely likely that it works just as well on all future versions of Torzu.
+
+Regardless, I am very happy with how things are right now.
+If you're looking for a Yuzu fork that definitely runs the games the original Yuzu emulator did well without any regressions, Torzu is probably your best bet for now.
 
 ## Development
 
@@ -66,10 +59,6 @@ git submodule update --init --recursive
 Note that above repository may be taken down any time. Do not rely on its existence in production. In case the NotABug mirror goes down, another mirror will be most likely be set up on Bitbucket.
 
 This project incorporates several commits from the [Suyu](https://suyu.dev), [Sudachi](https://github.com/sudachi-emu/sudachi) and [Citron](https://github.com/ong19th/Citron) forks, as well as changes listed in **Changes**.
-
-## Move away from Codeberg
-
-As requested by Codeberg staff, **I have removed the Codeberg mirror repository**. [The new mirror repository is on NotABug](https://notabug.org/litucks/torzu).
 
 ## Building
 <!--  -->
